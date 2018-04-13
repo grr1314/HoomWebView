@@ -1,7 +1,5 @@
 package hoomsun.com.lc.hoomwebview.data.factory;
 
-import com.google.gson.Gson;
-
 /**
  * Created by hoomsun on 2018/4/11.
  */
