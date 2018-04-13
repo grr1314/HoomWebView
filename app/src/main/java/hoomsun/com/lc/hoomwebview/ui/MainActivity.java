@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hoomsun.com.lc.hoomwebview.HoomWeb;
 import hoomsun.com.lc.hoomwebview.R;
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
@@ -34,6 +37,16 @@ public class MainActivity extends AppCompatActivity {
 //        hoomWeb.go("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
 //        hoomWeb.go("http://x5.tencent.com/tbs/sdk.html");
         hoomWeb.go("file:///android_asset/demo.html");
+
+        List<HoomWeb.JSCallBack> jsCallBacks=new ArrayList<>();
+        jsCallBacks.add(new HoomWeb.JSCallBack("ss",DefalultData.create(new ConvertInterface<bean>(){
+            @Override
+            public void doActionInner(bean bean) {
+
+            }
+        })));
+
+        hoomWeb.registerHandlers(jsCallBacks);
 
     }
 

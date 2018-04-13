@@ -3,7 +3,6 @@ package hoomsun.com.lc.hoomwebview;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -11,9 +10,7 @@ import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
@@ -33,6 +30,8 @@ public class HoomWeb {
     private Activity activity;
     private Fragment fragment;
     private ConvertInterface.ConvertFactory convertFactory;
+    private List<JSCallBack> convertFactoryList = new ArrayList<>();
+    private WebChromeClientWrapper webChromeClientWrapper;
 
     public HoomWeb(HoomBuilder hoomBuilder) {
         //创建HoomWebView
@@ -46,12 +45,16 @@ public class HoomWeb {
 
     public static final class HoomBuilder {
         Activity activity;
+        Fragment fragment;
         HoomWebView hoomWebView;
         ViewGroup viewGroup;
         ViewGroup.LayoutParams layoutParams;
 
         public HoomBuilder(Activity activity) {
             this.activity = activity;
+        }
+        public HoomBuilder(Fragment fragment) {
+            this.fragment = fragment;
         }
 
         /**
@@ -78,15 +81,36 @@ public class HoomWeb {
 
     }
 
+    /**
+     * 构建一个HoomBuilder对象
+     * @param activity
+     * @return
+     */
     public static HoomBuilder with(@NonNull Activity activity) {
         if (activity == null) {
             throw new NullPointerException("activity can not be null .");
         }
         return new HoomBuilder(activity);
     }
+    /**
+     * 构建一个HoomBuilder对象
+     * @param fragment
+     * @return
+     */
+    public static HoomBuilder with(@NonNull Fragment fragment) {
+        if (fragment == null) {
+            throw new NullPointerException("fragment can not be null .");
+        }
+        return new HoomBuilder(fragment);
+    }
 
     public HoomWeb addConvertFactory(ConvertInterface.ConvertFactory convertFactory) {
         this.convertFactory = convertFactory;
+        return this;
+    }
+
+    public HoomWeb setWebChromeClientWrapper(WebChromeClientWrapper webChromeClientWrapper) {
+        this.webChromeClientWrapper = webChromeClientWrapper;
         return this;
     }
 
@@ -106,19 +130,11 @@ public class HoomWeb {
             webSettings.setGeolocationEnabled(true);
             webSettings.setGeolocationDatabasePath("");
             webSettings.setDatabaseEnabled(true);
+            if (webChromeClientWrapper == null) {
+                webChromeClientWrapper = new WebChromeClientWrapper();
+            }
+            hoomWebView.setWebChromeClient(webChromeClientWrapper);
 
-            hoomWebView.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public void onProgressChanged(WebView webView, int i) {
-                    super.onProgressChanged(webView, i);
-                }
-
-                @Override
-                public void onReceivedTitle(WebView webView, String s) {
-                    super.onReceivedTitle(webView, s);
-                }
-
-            });
             hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
                 @Override
                 public void onPageFinished(WebView webView, String s) {
@@ -137,19 +153,31 @@ public class HoomWeb {
         return this;
     }
 
-    public HoomWeb registerHandlers(Map<String, BridgeHandler> handlers) {
-        Iterator it = handlers.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            handlerNames.add(key.toString());
-            registerHandlerFinal(key.toString(), (BridgeHandler) value);
+    /**
+     * 批量注册BridgeHandler
+     *
+     * @param factoryMap
+     * @return
+     */
+    public HoomWeb registerHandlers(List<JSCallBack> factoryMap) {
+        convertFactoryList = factoryMap;
+        if (handlerNames.size() > 0) {
+            handlerNames.clear();
+        }
+        for (JSCallBack callBack : factoryMap) {
+            handlerNames.add(callBack.handlerName);
+        }
+        //批量处理回调数据
+        for (int i = 0; i < factoryMap.size(); i++) {
+            registerHandlerFinal(factoryMap.get(i).handlerName, new CustomBridgeHandler(factoryMap.get(i).convertFactory));
         }
         return this;
     }
 
     public HoomWeb registerHandler(String name) {
+        if (handlerNames.size() > 0) {
+            handlerNames.clear();
+        }
         handlerNames.add(name);
         registerHandlerFinal(name, handler);
         return this;
@@ -167,6 +195,27 @@ public class HoomWeb {
         }
     };
 
+    /**
+     * 自定义BridgeHandler处理类，将工厂作为参数传入
+     */
+    private class CustomBridgeHandler implements BridgeHandler {
+        private ConvertInterface.ConvertFactory convertFactory;
+
+        public CustomBridgeHandler(ConvertInterface.ConvertFactory convertFactory) {
+            this.convertFactory = convertFactory;
+        }
+
+        @Override
+        public void handler(String data, CallBackFunction function) {
+            convertFactory.doParse(data);
+        }
+    }
+
+    /**
+     * 注销JSBridge的方法
+     *
+     * @return
+     */
     public HoomWeb unregisterHandlers() {
         for (String s : handlerNames) {
             hoomWebView.unregisterHandler(s);
@@ -174,6 +223,12 @@ public class HoomWeb {
         return this;
     }
 
+    /**
+     * 注册JSBridge的方法
+     *
+     * @param name
+     * @param handler
+     */
     private void registerHandlerFinal(String name, BridgeHandler handler) {
         hoomWebView.registerHandler(name, handler);
     }
@@ -231,5 +286,14 @@ public class HoomWeb {
         }
     }
 
+    public static class JSCallBack {
+        String handlerName;
+        ConvertInterface.ConvertFactory convertFactory;
+
+        public JSCallBack(String handlerName, ConvertInterface.ConvertFactory convertFactory) {
+            this.handlerName = handlerName;
+            this.convertFactory = convertFactory;
+        }
+    }
 
 }
