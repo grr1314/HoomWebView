@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
         hoomWeb= HoomWeb.with(this)
                 .setWebViewParentLayout(content, null)
                 .createHoomWebView()
+                .setWebSetting(new CustomSettings())
+                .setPostModel(new User("serviceName","12","dddsss",new bean("name","21"),"ss","sgin"))
                 .registerHandler("submitFromWeb")
                 .addConvertFactory(DefalultData.create(new ConvertInterface<bean>() {
                     @Override
@@ -32,13 +34,13 @@ public class MainActivity extends AppCompatActivity {
                         //做数据处理
                     }
                 }))
-                .ready();
+                .build();
 //        hoomWeb.go(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
 //        hoomWeb.go("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
 //        hoomWeb.go("http://x5.tencent.com/tbs/sdk.html");
-        hoomWeb.go("file:///android_asset/demo.html");
-
+        hoomWeb.postUrl("file:///android_asset/demo.html");
         List<HoomWeb.JSCallBack> jsCallBacks=new ArrayList<>();
+        //base setting
         jsCallBacks.add(new HoomWeb.JSCallBack("ss",DefalultData.create(new ConvertInterface<bean>(){
             @Override
             public void doActionInner(bean bean) {
@@ -53,6 +55,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        hoomWeb.unregisterHandlers();
     }
 }

@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
-import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 
@@ -13,15 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
+import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
+import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
 
 /**
  * Created by hoomsun on 2018/4/8.
  */
 
 public class HoomWeb {
-
     private static final String TAG = HoomWeb.class.getSimpleName();
     //负责创建WebView对象
     private WebViewCreator webViewCreator;
@@ -32,15 +32,20 @@ public class HoomWeb {
     private ConvertInterface.ConvertFactory convertFactory;
     private List<JSCallBack> convertFactoryList = new ArrayList<>();
     private WebChromeClientWrapper webChromeClientWrapper;
+    private BasePostModel basePostModel;
+    private HoomWebSettings hoomWebSettings;
 
     public HoomWeb(HoomBuilder hoomBuilder) {
         //创建HoomWebView
-        webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup);
+        if (hoomBuilder.webViewCreator == null) {
+            webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup);
+        } else {
+            webViewCreator = hoomBuilder.webViewCreator;
+        }
         webViewCreator.create();
         //获取HoomWebView对象
         hoomWebView = (HoomWebView) webViewCreator.getWebView();
         activity = hoomBuilder.activity;
-
     }
 
     public static final class HoomBuilder {
@@ -49,10 +54,12 @@ public class HoomWeb {
         HoomWebView hoomWebView;
         ViewGroup viewGroup;
         ViewGroup.LayoutParams layoutParams;
+        WebViewCreator webViewCreator;
 
         public HoomBuilder(Activity activity) {
             this.activity = activity;
         }
+
         public HoomBuilder(Fragment fragment) {
             this.fragment = fragment;
         }
@@ -70,6 +77,11 @@ public class HoomWeb {
             return this;
         }
 
+        public HoomBuilder setWebViewCreator(WebViewCreator webViewCreator) {
+            this.webViewCreator = webViewCreator;
+            return this;
+        }
+
         /**
          * 构建HoomWeb对象
          *
@@ -83,6 +95,7 @@ public class HoomWeb {
 
     /**
      * 构建一个HoomBuilder对象
+     *
      * @param activity
      * @return
      */
@@ -92,8 +105,10 @@ public class HoomWeb {
         }
         return new HoomBuilder(activity);
     }
+
     /**
      * 构建一个HoomBuilder对象
+     *
      * @param fragment
      * @return
      */
@@ -114,32 +129,39 @@ public class HoomWeb {
         return this;
     }
 
+    public HoomWeb setPostModel(BasePostModel basePostModel) {
+        this.basePostModel = basePostModel;
+        return this;
+    }
+
+    public HoomWeb setWebSetting(HoomWebSettings hoomWebSettings) {
+        this.hoomWebSettings = hoomWebSettings;
+        return this;
+    }
+
     /**
      * 设置WebSetting和WebClient
      *
      * @return
      */
-    public HoomWeb ready() {
+    public HoomWeb build() {
         if (hoomWebView != null) {
-            WebSettings webSettings = hoomWebView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            webSettings.setDomStorageEnabled(true);
-            webSettings.setUseWideViewPort(true);
-            webSettings.setLoadWithOverviewMode(true);
-            //打开 WebView 的 LBS 功能，这样 JS 的 geolocation 对象才可以使用
-            webSettings.setGeolocationEnabled(true);
-            webSettings.setGeolocationDatabasePath("");
-            webSettings.setDatabaseEnabled(true);
+            //设置WebSetting
+            if (hoomWebSettings == null) {
+                //使用默认的Setting
+                this.hoomWebSettings = HoomWebSettingManager.getInstance();
+            }
+            hoomWebSettings.toSet(hoomWebView);
+            //设置WebChromeClient
             if (webChromeClientWrapper == null) {
                 webChromeClientWrapper = new WebChromeClientWrapper();
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
-
+            //设置WebViewClient
             hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
                 @Override
                 public void onPageFinished(WebView webView, String s) {
                     super.onPageFinished(webView, s);
-                    webView.clearCache(true);
 //                    //如果是pdf文件
 //                    if (PathUtil.analyzePath(s)) {
 //                        //可能是pdf文件，首先要下载文件
@@ -234,26 +256,33 @@ public class HoomWeb {
     }
 
 
-    public void go(String url) {
+    public void loadUrl(String url) {
         new DoUrl().loadUrl(url);
     }
 
-    public void reload() {
-        new DoUrl().reload();
-    }
+//    public void reload() {
+//        new DoUrl().reload();
+//    }
 
     public void postUrl(String url, byte[] param) {
         new DoUrl().postUrl(url, param);
     }
 
-    public void stopLoading() {
-        new DoUrl().stopLoading();
+    public void postUrl(String url) {
+        byte[] param = null;
+        if (basePostModel != null) {
+            param = EncodingUtils.getPostData(basePostModel);
+        }
+        new DoUrl().postUrl(url, param);
     }
+
+//    public void stopLoading() {
+//        new DoUrl().stopLoading();
+//    }
 
     public void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding, String historyUrl) {
         new DoUrl().loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
     }
-
 
     /**
      * HoomWebView的代理类
