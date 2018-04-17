@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
-import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 
 import java.util.ArrayList;
@@ -21,8 +20,8 @@ import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
  * Created by hoomsun on 2018/4/8.
  */
 
-public class HoomWeb {
-    private static final String TAG = HoomWeb.class.getSimpleName();
+public class HoomWebBuilder {
+    private static final String TAG = HoomWebBuilder.class.getSimpleName();
     //负责创建WebView对象
     private WebViewCreator webViewCreator;
     private HoomWebView hoomWebView;
@@ -35,7 +34,7 @@ public class HoomWeb {
     private BasePostModel basePostModel;
     private HoomWebSettings hoomWebSettings;
 
-    public HoomWeb(HoomBuilder hoomBuilder) {
+    public HoomWebBuilder(HoomBuilder hoomBuilder) {
         //创建HoomWebView
         if (hoomBuilder.webViewCreator == null) {
             webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup);
@@ -87,8 +86,8 @@ public class HoomWeb {
          *
          * @return
          */
-        public HoomWeb createHoomWebView() {
-            return new HoomWeb(this);
+        public HoomWebBuilder createHoomWebView() {
+            return new HoomWebBuilder(this);
         }
 
     }
@@ -119,22 +118,22 @@ public class HoomWeb {
         return new HoomBuilder(fragment);
     }
 
-    public HoomWeb addConvertFactory(ConvertInterface.ConvertFactory convertFactory) {
+    public HoomWebBuilder addConvertFactory(ConvertInterface.ConvertFactory convertFactory) {
         this.convertFactory = convertFactory;
         return this;
     }
 
-    public HoomWeb setWebChromeClientWrapper(WebChromeClientWrapper webChromeClientWrapper) {
+    public HoomWebBuilder setWebChromeClientWrapper(WebChromeClientWrapper webChromeClientWrapper) {
         this.webChromeClientWrapper = webChromeClientWrapper;
         return this;
     }
 
-    public HoomWeb setPostModel(BasePostModel basePostModel) {
+    public HoomWebBuilder setPostModel(BasePostModel basePostModel) {
         this.basePostModel = basePostModel;
         return this;
     }
 
-    public HoomWeb setWebSetting(HoomWebSettings hoomWebSettings) {
+    public HoomWebBuilder setWebSetting(HoomWebSettings hoomWebSettings) {
         this.hoomWebSettings = hoomWebSettings;
         return this;
     }
@@ -144,7 +143,7 @@ public class HoomWeb {
      *
      * @return
      */
-    public HoomWeb build() {
+    public HoomWebBuilder build() {
         if (hoomWebView != null) {
             //设置WebSetting
             if (hoomWebSettings == null) {
@@ -181,7 +180,7 @@ public class HoomWeb {
      * @param factoryMap
      * @return
      */
-    public HoomWeb registerHandlers(List<JSCallBack> factoryMap) {
+    public HoomWebBuilder registerHandlers(List<JSCallBack> factoryMap) {
         convertFactoryList = factoryMap;
         if (handlerNames.size() > 0) {
             handlerNames.clear();
@@ -196,7 +195,7 @@ public class HoomWeb {
         return this;
     }
 
-    public HoomWeb registerHandler(String name) {
+    public HoomWebBuilder registerHandler(String name) {
         if (handlerNames.size() > 0) {
             handlerNames.clear();
         }
@@ -238,7 +237,7 @@ public class HoomWeb {
      *
      * @return
      */
-    public HoomWeb unregisterHandlers() {
+    public HoomWebBuilder unregisterHandlers() {
         for (String s : handlerNames) {
             hoomWebView.unregisterHandler(s);
         }

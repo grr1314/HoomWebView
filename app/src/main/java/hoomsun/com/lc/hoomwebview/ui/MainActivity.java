@@ -7,14 +7,14 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import hoomsun.com.lc.hoomwebview.HoomWeb;
+import hoomsun.com.lc.hoomwebview.HoomWebBuilder;
 import hoomsun.com.lc.hoomwebview.R;
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.factory.DefalultData;
 import hoomsun.com.lc.hoomwebview.data.factory.bean;
 
 public class MainActivity extends AppCompatActivity {
-    HoomWeb hoomWeb;
+    HoomWebBuilder hoomWebBuilder;
     LinearLayout content;
     public static String H5_BASE_URL = "https://m.hoomxb.com/";
     @Override
@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         content = findViewById(R.id.content);
-        hoomWeb= HoomWeb.with(this)
+        hoomWebBuilder = HoomWebBuilder.with(this)
                 .setWebViewParentLayout(content, null)
                 .createHoomWebView()
                 .setWebSetting(new CustomSettings())
@@ -35,20 +35,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }))
                 .build();
-//        hoomWeb.go(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
-//        hoomWeb.go("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
-//        hoomWeb.go("http://x5.tencent.com/tbs/sdk.html");
-        hoomWeb.postUrl("file:///android_asset/demo.html");
-        List<HoomWeb.JSCallBack> jsCallBacks=new ArrayList<>();
+//        hoomWebBuilder.go(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
+//        hoomWebBuilder.go("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
+//        hoomWebBuilder.go("http://x5.tencent.com/tbs/sdk.html");
+        hoomWebBuilder.postUrl("file:///android_asset/demo.html");
+        List<HoomWebBuilder.JSCallBack> jsCallBacks=new ArrayList<>();
         //base setting
-        jsCallBacks.add(new HoomWeb.JSCallBack("ss",DefalultData.create(new ConvertInterface<bean>(){
+        jsCallBacks.add(new HoomWebBuilder.JSCallBack("ss",DefalultData.create(new ConvertInterface<bean>(){
             @Override
             public void doActionInner(bean bean) {
 
             }
         })));
 
-        hoomWeb.registerHandlers(jsCallBacks);
+        hoomWebBuilder.registerHandlers(jsCallBacks);
 
     }
 
