@@ -1,24 +1,16 @@
 package hoomsun.com.lc.hoomwebview;
 
 
-import com.tencent.smtt.sdk.WebSettings;
-import com.tencent.smtt.sdk.WebView;
-
 /**
  * Created by hoomsun on 2018/4/8.
  */
 
 public class HoomWebSettingManager implements HoomWebSettings{
-    private WebSettings mWebSettings;
-    @Override
-    public HoomWebSettings toSet(WebView webView) {
-        setting(webView);
-        return this;
-    }
+    private com.tencent.smtt.sdk.WebSettings mWebSettings;
     public static HoomWebSettingManager getInstance() {
         return new HoomWebSettingManager();
     }
-    private void setting(WebView webView) {
+    private void setting(HoomWebView webView) {
         mWebSettings=webView.getSettings();
         mWebSettings.setJavaScriptEnabled(true);
         mWebSettings.setDomStorageEnabled(true);
@@ -28,6 +20,12 @@ public class HoomWebSettingManager implements HoomWebSettings{
         mWebSettings.setGeolocationEnabled(true);
         mWebSettings.setGeolocationDatabasePath("");
         mWebSettings.setDatabaseEnabled(true);
+    }
+
+    @Override
+    public HoomWebSettings toSetTbsWebSettings(HoomWebView webView) {
+        setting(webView);
+        return this;
     }
 
     @Override

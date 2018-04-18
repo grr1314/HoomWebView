@@ -51,18 +51,18 @@ public class EncodingUtils {
     public static byte[] getPostData(BasePostModel basePostModel)
     {
         byte[] param=null;
-        //做拼接
         StringBuilder stringBuilder = new StringBuilder();
         try {
             JSONObject jsonObject = new JSONObject(basePostModel.toString());
             Iterator iterator = jsonObject.keys();
             while (iterator.hasNext()) {
-
                 String key = (String) iterator.next();
-                stringBuilder.append(key + "=")
-                        .append(jsonObject.getString(key))
-                        .append("&");
-
+                if (!StringUtils.isEmpty(jsonObject.getString(key)))
+                {
+                    stringBuilder.append(key + "=")
+                            .append(jsonObject.getString(key))
+                            .append("&");
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

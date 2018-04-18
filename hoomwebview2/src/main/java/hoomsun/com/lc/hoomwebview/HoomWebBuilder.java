@@ -1,6 +1,7 @@
 package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
@@ -9,12 +10,15 @@ import com.tencent.smtt.sdk.WebView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
+import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewActivity;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
+import hoomsun.com.lc.hoomwebview.util.PathUtil;
 
 /**
  * Created by hoomsun on 2018/4/8.
@@ -150,7 +154,7 @@ public class HoomWebBuilder {
                 //使用默认的Setting
                 this.hoomWebSettings = HoomWebSettingManager.getInstance();
             }
-            hoomWebSettings.toSet(hoomWebView);
+            hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
             if (webChromeClientWrapper == null) {
                 webChromeClientWrapper = new WebChromeClientWrapper();
@@ -259,9 +263,9 @@ public class HoomWebBuilder {
         new DoUrl().loadUrl(url);
     }
 
-//    public void reload() {
-//        new DoUrl().reload();
-//    }
+    public void reload() {
+        new DoUrl().reload();
+    }
 
     public void postUrl(String url, byte[] param) {
         new DoUrl().postUrl(url, param);
@@ -275,9 +279,9 @@ public class HoomWebBuilder {
         new DoUrl().postUrl(url, param);
     }
 
-//    public void stopLoading() {
-//        new DoUrl().stopLoading();
-//    }
+    public void stopLoading() {
+        new DoUrl().stopLoading();
+    }
 
     public void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding, String historyUrl) {
         new DoUrl().loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
@@ -314,14 +318,27 @@ public class HoomWebBuilder {
         }
     }
 
-    public static class JSCallBack {
+//    public interface JSCallBack {
+//        String handlerName = null;
+//        ConvertInterface.ConvertFactory convertFactory = null;
+//        public void JSCallBackFun(String handlerName, ConvertInterface.ConvertFactory convertFactory);
+//    }
+
+    public abstract static class JSCallBack {
         String handlerName;
         ConvertInterface.ConvertFactory convertFactory;
 
-        public JSCallBack(String handlerName, ConvertInterface.ConvertFactory convertFactory) {
-            this.handlerName = handlerName;
-            this.convertFactory = convertFactory;
+        public JSCallBack() {
+            Map<String,ConvertInterface.ConvertFactory>map=addJSCallBack();
+            for (Map.Entry<String,ConvertInterface.ConvertFactory> entry:map.entrySet())
+            {
+                this.handlerName = entry.getKey();
+                this.convertFactory = entry.getValue();
+            }
+
         }
+        public abstract Map<String, ConvertInterface.ConvertFactory> addJSCallBack();
+
     }
 
 }
