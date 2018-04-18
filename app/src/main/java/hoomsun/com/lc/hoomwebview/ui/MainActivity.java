@@ -9,7 +9,6 @@ import java.util.List;
 
 import hoomsun.com.lc.hoomwebview.HoomWebBuilder;
 import hoomsun.com.lc.hoomwebview.R;
-import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 
 public class MainActivity extends AppCompatActivity {
     HoomWebBuilder hoomWebBuilder;

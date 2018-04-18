@@ -1,7 +1,6 @@
 package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
@@ -16,9 +15,7 @@ import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
-import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewActivity;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
-import hoomsun.com.lc.hoomwebview.util.PathUtil;
 
 /**
  * Created by hoomsun on 2018/4/8.

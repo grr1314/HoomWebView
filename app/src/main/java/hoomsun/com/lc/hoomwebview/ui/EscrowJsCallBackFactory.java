@@ -1,7 +1,5 @@
 package hoomsun.com.lc.hoomwebview.ui;
 
-import com.google.gson.Gson;
-
 import hoomsun.com.lc.hoomwebview.data.factory.BaseDataConvertFactroy;
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 
