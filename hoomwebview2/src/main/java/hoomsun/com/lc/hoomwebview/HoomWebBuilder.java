@@ -259,7 +259,9 @@ public class HoomWebBuilder {
     public void loadUrl(String url) {
         new DoUrl().loadUrl(url);
     }
-
+    public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+            new DoUrl().loadUrl(url,additionalHttpHeaders);
+    }
     public void reload() {
         new DoUrl().reload();
     }
@@ -292,6 +294,11 @@ public class HoomWebBuilder {
         @Override
         public void loadUrl(String url) {
             hoomWebView.loadUrl(url);
+        }
+
+        @Override
+        public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+            hoomWebView.loadUrl(url,additionalHttpHeaders);
         }
 
         @Override
