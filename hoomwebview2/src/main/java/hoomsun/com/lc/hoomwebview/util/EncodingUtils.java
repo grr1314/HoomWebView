@@ -1,5 +1,7 @@
 package hoomsun.com.lc.hoomwebview.util;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,15 +17,15 @@ import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 public class EncodingUtils {
     /**
      * String 转Byte
+     *
      * @param data
      * @param encoding
      * @return
      */
-    public static byte[] getBytes(String data,String encoding)
-    {
-        byte[] bytes=null;
+    public static byte[] getBytes(String data, String encoding) {
+        byte[] bytes = null;
         try {
-            bytes=data.getBytes(encoding);
+            bytes = data.getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -32,31 +34,29 @@ public class EncodingUtils {
 
     /**
      * byte转String
+     *
      * @param bytes
      * @param encoding
      * @return
      */
-    public static String getString(byte[] bytes,String encoding)
-    {
+    public static String getString(byte[] bytes, String encoding) {
         try {
-            return new String(bytes,encoding);
+            return new String(bytes, encoding);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return "";
     }
 
-    public static byte[] getPostData(BasePostModel basePostModel)
-    {
-        byte[] param=null;
+    public static byte[] getPostData(BasePostModel basePostModel) {
+        byte[] param = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
             JSONObject jsonObject = new JSONObject(basePostModel.toString());
             Iterator iterator = jsonObject.keys();
             while (iterator.hasNext()) {
                 String key = (String) iterator.next();
-                if (!StringUtils.isEmpty(jsonObject.getString(key)))
-                {
+                if (!StringUtils.isEmpty(jsonObject.getString(key))) {
                     stringBuilder.append(key + "=")
                             .append(jsonObject.getString(key))
                             .append("&");
@@ -65,7 +65,10 @@ public class EncodingUtils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        param= getBytes(stringBuilder.toString().substring(0,stringBuilder.toString().length()-1),"UTF-8");
+        Log.e("EncodingUtils", stringBuilder.toString());
+        if (stringBuilder.toString().length() > 0) {
+            param = getBytes(stringBuilder.toString().substring(0, stringBuilder.toString().length() - 1), "UTF-8");
+        }
         return param;
     }
 

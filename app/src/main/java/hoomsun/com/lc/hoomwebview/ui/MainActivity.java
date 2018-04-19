@@ -22,18 +22,18 @@ public class MainActivity extends AppCompatActivity {
         hoomWebBuilder = HoomWebBuilder.with(this)
                 .setWebViewParentLayout(content, null)
                 .createHoomWebView()
-                .setWebSetting(new CustomSettings())
-                .setPostModel(new User("serviceName","12","dddsss",new bean("name","21"),"ss","sgin"))
+//                .setWebSetting(new CustomSettings())
+                .setPostModel(new User("name","21"))
                 .build();
 //        hoomWebBuilder.go(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
 //        hoomWebBuilder.go("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
-//        hoomWebBuilder.go("http://x5.tencent.com/tbs/sdk.html");
-        hoomWebBuilder.postUrl("file:///android_asset/demo.html");
+        hoomWebBuilder.loadUrl("http://x5.tencent.com/tbs/sdk.html");
+//        hoomWebBuilder.postUrl("http://x5.tencent.com/tbs/sdk.html");
 
         //注意registerHandlers和registerHandler会相互覆盖
-        List<HoomWebBuilder.JSCallBack> jsCallBacks=new ArrayList<>();
-        jsCallBacks.add(new EscrowJsCallBacks());
-        hoomWebBuilder.registerHandlers(jsCallBacks);
+//        List<HoomWebBuilder.JSCallBack> jsCallBacks=new ArrayList<>();
+//        jsCallBacks.add(new EscrowJsCallBacks());
+//        hoomWebBuilder.registerHandlers(jsCallBacks);
     }
 
     @Override

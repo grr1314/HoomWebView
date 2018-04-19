@@ -3,6 +3,7 @@ package hoomsun.com.lc.hoomwebview;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.tencent.smtt.sdk.WebView;
@@ -15,7 +16,9 @@ import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
+import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
+import hoomsun.com.lc.hoomwebview.util.StringUtils;
 
 /**
  * Created by hoomsun on 2018/4/8.
@@ -34,18 +37,21 @@ public class HoomWebBuilder {
     private WebChromeClientWrapper webChromeClientWrapper;
     private BasePostModel basePostModel;
     private HoomWebSettings hoomWebSettings;
+    private DefaultProgress defaultProgress;
 
     public HoomWebBuilder(HoomBuilder hoomBuilder) {
+        activity = hoomBuilder.activity;
+        defaultProgress = new DefaultProgress(activity);
         //创建HoomWebView
         if (hoomBuilder.webViewCreator == null) {
-            webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup);
+            webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup,defaultProgress);
         } else {
             webViewCreator = hoomBuilder.webViewCreator;
         }
         webViewCreator.create();
         //获取HoomWebView对象
         hoomWebView = (HoomWebView) webViewCreator.getWebView();
-        activity = hoomBuilder.activity;
+
     }
 
     public static final class HoomBuilder {
@@ -154,7 +160,7 @@ public class HoomWebBuilder {
             hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
             if (webChromeClientWrapper == null) {
-                webChromeClientWrapper = new WebChromeClientWrapper();
+                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress);
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
             //设置WebViewClient
@@ -259,9 +265,11 @@ public class HoomWebBuilder {
     public void loadUrl(String url) {
         new DoUrl().loadUrl(url);
     }
+
     public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
-            new DoUrl().loadUrl(url,additionalHttpHeaders);
+        new DoUrl().loadUrl(url, additionalHttpHeaders);
     }
+
     public void reload() {
         new DoUrl().reload();
     }
@@ -273,9 +281,17 @@ public class HoomWebBuilder {
     public void postUrl(String url) {
         byte[] param = null;
         if (basePostModel != null) {
-            param = EncodingUtils.getPostData(basePostModel);
+            if (!StringUtils.isEmpty(basePostModel.toString()))
+            {
+                param = EncodingUtils.getBytes(basePostModel.toString(),"UTF-8");
+                new DoUrl().postUrl(url, param);
+            }
+            else
+            {
+                throw new NullPointerException("model toString() can not be null or empty String");
+            }
         }
-        new DoUrl().postUrl(url, param);
+
     }
 
     public void stopLoading() {
@@ -298,7 +314,7 @@ public class HoomWebBuilder {
 
         @Override
         public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
-            hoomWebView.loadUrl(url,additionalHttpHeaders);
+            hoomWebView.loadUrl(url, additionalHttpHeaders);
         }
 
         @Override
@@ -322,25 +338,19 @@ public class HoomWebBuilder {
         }
     }
 
-//    public interface JSCallBack {
-//        String handlerName = null;
-//        ConvertInterface.ConvertFactory convertFactory = null;
-//        public void JSCallBackFun(String handlerName, ConvertInterface.ConvertFactory convertFactory);
-//    }
-
     public abstract static class JSCallBack {
         String handlerName;
         ConvertInterface.ConvertFactory convertFactory;
 
         public JSCallBack() {
-            Map<String,ConvertInterface.ConvertFactory>map=addJSCallBack();
-            for (Map.Entry<String,ConvertInterface.ConvertFactory> entry:map.entrySet())
-            {
+            Map<String, ConvertInterface.ConvertFactory> map = addJSCallBack();
+            for (Map.Entry<String, ConvertInterface.ConvertFactory> entry : map.entrySet()) {
                 this.handlerName = entry.getKey();
                 this.convertFactory = entry.getValue();
             }
 
         }
+
         public abstract Map<String, ConvertInterface.ConvertFactory> addJSCallBack();
 
     }

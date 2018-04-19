@@ -102,9 +102,9 @@ install {
                 }
                 developers {
                     developer {
-                        id 'lvchao_24'
+                        id 'lc'
                         name 'lvchao'
-                        email '179536239@qq.com'
+                        email 'chao.lv@hoomsun.com'
                     }
                 }
                 scm {
@@ -127,7 +127,7 @@ bintray {
     pkg {
         repo = "maven"
         name = libName    //发布到JCenter上的项目名字，必须填写
-        desc = 'This is a lightweight SQLite database framework'    //项目描述
+        desc = '基于TBS服务实现pdf等office文件浏览、文件选择、JSBridge交互以及数据处理等功能'    //项目描述
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]

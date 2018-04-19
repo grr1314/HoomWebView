@@ -2,12 +2,19 @@ package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.tencent.smtt.sdk.WebView;
+
+import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 
 /**
  * Created by hoomsun on 2018/4/8.
@@ -19,16 +26,18 @@ public class DefaultWebViewCreator implements WebViewCreator {
     private ViewGroup.LayoutParams layoutParams;
     private Activity activity;
     private ViewGroup parentLayout;
+    private boolean isNeedDefaultProgress;
+    private DefaultProgress defaultProgress;
 
-    public DefaultWebViewCreator(Activity activity, ViewGroup parentLayout) {
-        this(null, activity, parentLayout);
+    public DefaultWebViewCreator(Activity activity, ViewGroup parentLayout, DefaultProgress defaultProgress) {
+        this(null, activity, parentLayout, defaultProgress);
     }
 
-    public DefaultWebViewCreator(HoomWebView hoomWebView, Activity activity, ViewGroup parentLayout) {
-        this(hoomWebView, null, activity, parentLayout);
+    public DefaultWebViewCreator(HoomWebView hoomWebView, Activity activity, ViewGroup parentLayout, DefaultProgress defaultProgress) {
+        this(hoomWebView, null, activity, parentLayout, defaultProgress);
     }
 
-    public DefaultWebViewCreator(HoomWebView hoomWebView, ViewGroup.LayoutParams layoutParams, Activity activity, ViewGroup parentLayout) {
+    public DefaultWebViewCreator(HoomWebView hoomWebView, ViewGroup.LayoutParams layoutParams, Activity activity, ViewGroup parentLayout, DefaultProgress defaultProgress) {
         this.hoomWebView = hoomWebView;
         if (layoutParams == null) {
             layoutParams = getDefaultLayoutParams(layoutParams);
@@ -39,10 +48,12 @@ public class DefaultWebViewCreator implements WebViewCreator {
             throw new NullPointerException("parentLayout can not be null .");
         }
         this.parentLayout = parentLayout;
+        isNeedDefaultProgress = true;
+        this.defaultProgress = defaultProgress;
     }
 
     private ViewGroup.LayoutParams getDefaultLayoutParams(ViewGroup.LayoutParams layoutParams) {
-        layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        layoutParams = new FrameLayout.LayoutParams(-1, -1);
         return layoutParams;
     }
 
@@ -62,7 +73,14 @@ public class DefaultWebViewCreator implements WebViewCreator {
     }
 
     private void addView() {
-        parentLayout.addView(hoomWebView, layoutParams);
+        RelativeLayout frameLayout = new RelativeLayout(activity);
+        frameLayout.addView(hoomWebView, layoutParams);
+        RelativeLayout.LayoutParams mLayoutParams = new RelativeLayout.LayoutParams(-1, 10);
+        if (isNeedDefaultProgress) {
+            ProgressBar progressBar = defaultProgress.getProgressBar();
+            frameLayout.addView(progressBar, mLayoutParams);
+        }
+        parentLayout.addView(frameLayout);
     }
 
     @Override

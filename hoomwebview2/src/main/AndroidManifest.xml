@@ -1,2 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="hoomsun.com.lc.hoomwebview" />
+    package="hoomsun.com.lc.hoomwebview" >
+    <application
+        android:supportsRtl="true"
+        android:allowBackup="true"
+        >
+        <activity
+            android:name=".tbs.TbsReaderViewActivity"></activity>
+    </application>
+</manifest>

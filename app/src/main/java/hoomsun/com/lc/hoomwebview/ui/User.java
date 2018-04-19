@@ -1,6 +1,11 @@
 package hoomsun.com.lc.hoomwebview.ui;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 
@@ -13,16 +18,10 @@ public class User extends BasePostModel{
     private String userName;
     private String age;
 
-    public User(String serviceName, String platformNo, String userData, Object model, String keySerial, String sign, String userName, String age) {
-        super(serviceName, platformNo, userData, model, keySerial, sign);
+    public User(String userName, String age) {
         this.userName = userName;
         this.age = age;
     }
-
-    public User(String serviceName, String platformNo, String userData, Object model, String keySerial, String sign) {
-        super(serviceName, platformNo, userData, model, keySerial, sign);
-    }
-
 
     public String getUserName() {
         return userName;
@@ -42,6 +41,12 @@ public class User extends BasePostModel{
 
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        try {
+            return "userName=" + URLEncoder.encode(userName,"UTF-8") + "&" +
+                    "age=" + URLEncoder.encode(age,"UTF-8") ;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return super.toString();
     }
 }
