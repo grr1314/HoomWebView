@@ -1,8 +1,11 @@
 package hoomsun.com.lc.hoomwebview;
 
+import android.util.Log;
+
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
 
+import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
 import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 
 /**
@@ -11,6 +14,13 @@ import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 
 public class WebChromeClientWrapper extends WebChromeClient {
     DefaultProgress defaultProgress;
+    int oldProgress;
+    WebChromeListener webChromeListener;
+
+    public WebChromeClientWrapper(DefaultProgress defaultProgress, WebChromeListener webChromeListener) {
+        this.defaultProgress = defaultProgress;
+        this.webChromeListener = webChromeListener;
+    }
 
     public WebChromeClientWrapper(DefaultProgress defaultProgress) {
         this.defaultProgress = defaultProgress;
@@ -19,11 +29,21 @@ public class WebChromeClientWrapper extends WebChromeClient {
     @Override
     public void onProgressChanged(WebView webView, int i) {
         super.onProgressChanged(webView, i);
-        defaultProgress.progress(webView, i);
-        if (i==100)
-        {
-            defaultProgress.finish();
+        if (i > oldProgress) {
+            defaultProgress.progress(webView, i);
+            oldProgress = i;
         }
+        if (i == 100) {
+            defaultProgress.finish();
+            oldProgress=0;
+        }
+    }
+
+    @Override
+    public void onReceivedTitle(WebView webView, String s) {
+        super.onReceivedTitle(webView, s);
+        if (webChromeListener!=null)
+        webChromeListener.getTitle(s);
     }
 
 }

@@ -29,6 +29,10 @@ public class DefaultProgress implements ProgressInterface {
 
     @Override
     public void progress(WebView view, int newProgress) {
+        if (progressBar.getVisibility()==View.GONE)
+        {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         progressBar.setProgress(newProgress);
     }
 

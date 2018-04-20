@@ -16,6 +16,7 @@ import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
+import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
 import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
 import hoomsun.com.lc.hoomwebview.util.StringUtils;
@@ -38,20 +39,21 @@ public class HoomWebBuilder {
     private BasePostModel basePostModel;
     private HoomWebSettings hoomWebSettings;
     private DefaultProgress defaultProgress;
+    private WebChromeListener webChromeListener;
 
     public HoomWebBuilder(HoomBuilder hoomBuilder) {
         activity = hoomBuilder.activity;
         defaultProgress = new DefaultProgress(activity);
         //创建HoomWebView
         if (hoomBuilder.webViewCreator == null) {
-            webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup,defaultProgress);
+            webViewCreator = new DefaultWebViewCreator(hoomBuilder.activity, hoomBuilder.viewGroup, defaultProgress);
         } else {
             webViewCreator = hoomBuilder.webViewCreator;
         }
         webViewCreator.create();
         //获取HoomWebView对象
         hoomWebView = (HoomWebView) webViewCreator.getWebView();
-
+        hoomWebView.getX5WebViewExtension().setScrollBarFadingEnabled(false);//不显示ScrollBar
     }
 
     public static final class HoomBuilder {
@@ -111,7 +113,6 @@ public class HoomWebBuilder {
         }
         return new HoomBuilder(activity);
     }
-
     /**
      * 构建一个HoomBuilder对象
      *
@@ -132,6 +133,16 @@ public class HoomWebBuilder {
 
     public HoomWebBuilder setWebChromeClientWrapper(WebChromeClientWrapper webChromeClientWrapper) {
         this.webChromeClientWrapper = webChromeClientWrapper;
+        return this;
+    }
+    public HoomWebBuilder setProgresssBar()
+    {
+        return this;
+    }
+
+    public HoomWebBuilder setWebChromeClientListener(WebChromeListener webChromeListener)
+    {
+        this.webChromeListener=webChromeListener;
         return this;
     }
 
@@ -160,7 +171,7 @@ public class HoomWebBuilder {
             hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
             if (webChromeClientWrapper == null) {
-                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress);
+                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress,webChromeListener);
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
             //设置WebViewClient
@@ -281,13 +292,10 @@ public class HoomWebBuilder {
     public void postUrl(String url) {
         byte[] param = null;
         if (basePostModel != null) {
-            if (!StringUtils.isEmpty(basePostModel.toString()))
-            {
-                param = EncodingUtils.getBytes(basePostModel.toString(),"UTF-8");
+            if (!StringUtils.isEmpty(basePostModel.toString())) {
+                param = EncodingUtils.getBytes(basePostModel.toString(), "UTF-8");
                 new DoUrl().postUrl(url, param);
-            }
-            else
-            {
+            } else {
                 throw new NullPointerException("model toString() can not be null or empty String");
             }
         }
@@ -353,6 +361,12 @@ public class HoomWebBuilder {
 
         public abstract Map<String, ConvertInterface.ConvertFactory> addJSCallBack();
 
+    }
+
+    public void goBack() {
+        if (hoomWebView != null && hoomWebView.canGoBack()) {
+            hoomWebView.goBack();
+        }
     }
 
 }
