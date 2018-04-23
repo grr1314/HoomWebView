@@ -16,7 +16,7 @@ public class PathUtil {
         if (judgeEmpty(url)) {
             Log.e(TAG, "url can not be null or empty string ");
         }
-        String regEx = "\\w*\\.(pdf|doc|xlex|...)";
+        String regEx = "\\w*\\.(pdf|doc|docx|docm|ppt|txt|xls|xlsx|dot|dotx|rtf|odt|wtf)";
         Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {

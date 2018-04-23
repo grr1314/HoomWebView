@@ -16,10 +16,12 @@ public class WebChromeClientWrapper extends WebChromeClient {
     DefaultProgress defaultProgress;
     int oldProgress;
     WebChromeListener webChromeListener;
+    private boolean isShowFile;
 
-    public WebChromeClientWrapper(DefaultProgress defaultProgress, WebChromeListener webChromeListener) {
+    public WebChromeClientWrapper(DefaultProgress defaultProgress, WebChromeListener webChromeListener, boolean isShowFile) {
         this.defaultProgress = defaultProgress;
         this.webChromeListener = webChromeListener;
+        this.isShowFile = isShowFile;
     }
 
     public WebChromeClientWrapper(DefaultProgress defaultProgress) {
@@ -35,15 +37,18 @@ public class WebChromeClientWrapper extends WebChromeClient {
         }
         if (i == 100) {
             defaultProgress.finish();
-            oldProgress=0;
+            oldProgress = 0;
         }
     }
 
     @Override
     public void onReceivedTitle(WebView webView, String s) {
         super.onReceivedTitle(webView, s);
-        if (webChromeListener!=null)
-        webChromeListener.getTitle(s);
+        if (webChromeListener != null) {
+                webChromeListener.getTitle(s);
+        }
+
+
     }
 
 }

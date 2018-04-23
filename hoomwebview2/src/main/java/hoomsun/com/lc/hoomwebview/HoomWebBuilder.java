@@ -1,9 +1,11 @@
 package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.tencent.smtt.sdk.WebView;
@@ -17,8 +19,11 @@ import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
 import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
+import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewActivity;
+import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewWapper;
 import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
+import hoomsun.com.lc.hoomwebview.util.PathUtil;
 import hoomsun.com.lc.hoomwebview.util.StringUtils;
 
 /**
@@ -40,6 +45,10 @@ public class HoomWebBuilder {
     private HoomWebSettings hoomWebSettings;
     private DefaultProgress defaultProgress;
     private WebChromeListener webChromeListener;
+    private ViewGroup webViewParentLayout;
+    private boolean isShowFile;
+    private View oldView;
+    private TbsReaderViewWapper tbsReaderViewWapper;
 
     public HoomWebBuilder(HoomBuilder hoomBuilder) {
         activity = hoomBuilder.activity;
@@ -54,6 +63,7 @@ public class HoomWebBuilder {
         //获取HoomWebView对象
         hoomWebView = (HoomWebView) webViewCreator.getWebView();
         hoomWebView.getX5WebViewExtension().setScrollBarFadingEnabled(false);//不显示ScrollBar
+        webViewParentLayout = webViewCreator.getWebParentLayout();
     }
 
     public static final class HoomBuilder {
@@ -113,6 +123,7 @@ public class HoomWebBuilder {
         }
         return new HoomBuilder(activity);
     }
+
     /**
      * 构建一个HoomBuilder对象
      *
@@ -135,14 +146,13 @@ public class HoomWebBuilder {
         this.webChromeClientWrapper = webChromeClientWrapper;
         return this;
     }
-    public HoomWebBuilder setProgresssBar()
-    {
+
+    public HoomWebBuilder setProgresssBar() {
         return this;
     }
 
-    public HoomWebBuilder setWebChromeClientListener(WebChromeListener webChromeListener)
-    {
-        this.webChromeListener=webChromeListener;
+    public HoomWebBuilder setWebChromeClientListener(WebChromeListener webChromeListener) {
+        this.webChromeListener = webChromeListener;
         return this;
     }
 
@@ -171,7 +181,7 @@ public class HoomWebBuilder {
             hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
             if (webChromeClientWrapper == null) {
-                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress,webChromeListener);
+                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile);
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
             //设置WebViewClient
@@ -179,13 +189,25 @@ public class HoomWebBuilder {
                 @Override
                 public void onPageFinished(WebView webView, String s) {
                     super.onPageFinished(webView, s);
-//                    //如果是pdf文件
-//                    if (PathUtil.analyzePath(s)) {
-//                        //可能是pdf文件，首先要下载文件
+                    if (PathUtil.analyzePath(s)) {
+                        webChromeListener.getTitle("文件预览");
+//                        可能是pdf文件，首先要下载文件
 //                        Intent intent = new Intent(activity, TbsReaderViewActivity.class);
 //                        intent.putExtra("fileUrl", s);
 //                        activity.startActivity(intent);
-//                    }
+                        //使用Fragment来展示
+//
+                        //使用View来展示
+                        if (tbsReaderViewWapper == null) {
+                            tbsReaderViewWapper = new TbsReaderViewWapper(activity);
+                        }
+                        tbsReaderViewWapper.showFile(s);
+                        //将View添加进来
+                        oldView = webViewParentLayout.getChildAt(0);
+                        webViewParentLayout.removeAllViews();
+                        webViewParentLayout.addView(tbsReaderViewWapper, 0);
+                        isShowFile = true;
+                    }
                 }
             });
         }
@@ -352,21 +374,43 @@ public class HoomWebBuilder {
 
         public JSCallBack() {
             Map<String, ConvertInterface.ConvertFactory> map = addJSCallBack();
-            for (Map.Entry<String, ConvertInterface.ConvertFactory> entry : map.entrySet()) {
-                this.handlerName = entry.getKey();
-                this.convertFactory = entry.getValue();
+            if (map != null) {
+                for (Map.Entry<String, ConvertInterface.ConvertFactory> entry : map.entrySet()) {
+                    this.handlerName = entry.getKey();
+                    this.convertFactory = entry.getValue();
+                }
             }
-
         }
-
         public abstract Map<String, ConvertInterface.ConvertFactory> addJSCallBack();
-
     }
 
     public void goBack() {
-        if (hoomWebView != null && hoomWebView.canGoBack()) {
-            hoomWebView.goBack();
+        if (hoomWebViewCanGoBack()) {
+            //如果说给的链接地址就是一个PDF文件，这种情况我应该直接关闭activity，如果说是在WebView内部跳转的PDF文件，应该先移除Tbs的View然后将WebView添加回来
+            if (isShowFile && webViewParentLayout != null) {
+                tbsReaderViewWapper.unregisterTbsReaderView();
+                webViewParentLayout.removeAllViews();
+                webViewParentLayout.addView(oldView, 0);
+                hoomWebView.goBack();
+            } else if (hoomWebView != null) {
+                hoomWebView.goBack();
+            }
         }
+    }
+
+    public void unregisterTbsReaderView() {
+        if (isShowFile) {
+            tbsReaderViewWapper.unregisterTbsReaderView();
+        }
+    }
+
+    /**
+     * 判断WebView是否可以返回
+     *
+     * @return
+     */
+    public boolean hoomWebViewCanGoBack() {
+        return hoomWebView.canGoBack();
     }
 
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -84,10 +85,17 @@ public class TbsReaderViewActivity extends AppCompatActivity implements TbsReade
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        fileDownloadManager.unrigister();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        fileDownloadManager.taskRemove(mRequestId);
+        Log.e("onDestroy","onDestroy1");
         tbsReaderView.onStop();
+
     }
 
     @Override

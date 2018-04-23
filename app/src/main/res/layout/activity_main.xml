@@ -30,6 +30,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/icon_close"
             android:layout_toRightOf="@id/back"
+            android:visibility="gone"
             />
 
         <TextView

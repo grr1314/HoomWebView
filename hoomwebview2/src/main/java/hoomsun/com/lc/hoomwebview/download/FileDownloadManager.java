@@ -35,7 +35,7 @@ public class FileDownloadManager {
 
     private FileDownloadManager(Context context) {
         downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-        this.context = context.getApplicationContext();
+        this.context = context;
         timer = new Timer();
     }
 
@@ -83,9 +83,9 @@ public class FileDownloadManager {
         }
     });
 
-    public void startDownload(String url,String mFileName) {
+    public void startDownload(String url, String mFileName) {
         if (downloadManager != null) {
-            this.mFileName=mFileName;
+            this.mFileName = mFileName;
             mDownloadObserver = new DownloadObserver(new Handler());
             context.getContentResolver().registerContentObserver(Uri.parse("content://downloads/my_downloads"), true, mDownloadObserver);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -96,10 +96,11 @@ public class FileDownloadManager {
             downId = downloadManager.enqueue(request);
         }
     }
-    public void setmFileName(String url)
-    {
-        this.mFileName=parseName(url);
+
+    public void setmFileName(String url) {
+        this.mFileName = parseName(url);
     }
+
     public boolean isLocalExist() {
         return getLocalFile().exists();
     }
@@ -196,6 +197,7 @@ public class FileDownloadManager {
      * @param id
      */
     public void taskRemove(long id) {
+        unrigister();
         if (downloadManager != null) {
             downloadManager.remove(id);
             //暂时只考虑一个下载任务
@@ -211,8 +213,14 @@ public class FileDownloadManager {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            Log.i("downloadUpdate: ", "onChange(boolean selfChange, Uri uri)");
             queryDownloadStatus();
+        }
+    }
+
+    public void unrigister() {
+        if (mDownloadObserver != null)
+        {
+            context.getContentResolver().unregisterContentObserver(mDownloadObserver);
         }
     }
 
@@ -229,7 +237,7 @@ public class FileDownloadManager {
                 //状态所在的列索引
                 int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                 if (DownloadManager.STATUS_SUCCESSFUL == status) {
-                    Log.e(TAG,"queryDownloadStatus");
+                    Log.e(TAG, "queryDownloadStatus");
                     fileDownManagerListener.complate();
                 }
             }

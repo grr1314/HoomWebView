@@ -89,7 +89,7 @@ public class DefaultWebViewCreator implements WebViewCreator {
     }
 
     @Override
-    public FrameLayout getWebParentLayout() {
-        return null;
+    public ViewGroup getWebParentLayout() {
+        return parentLayout;
     }
 }

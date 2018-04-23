@@ -1,5 +1,6 @@
 package hoomsun.com.lc.hoomwebview;
 
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.tencent.smtt.sdk.WebView;
@@ -13,5 +14,5 @@ public interface WebViewCreator {
 
     WebView getWebView();
 
-    FrameLayout getWebParentLayout();
+    ViewGroup getWebParentLayout();
 }
