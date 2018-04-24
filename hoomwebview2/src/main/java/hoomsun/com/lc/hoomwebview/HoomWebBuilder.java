@@ -310,6 +310,10 @@ public class HoomWebBuilder {
     public void postUrl(String url, byte[] param) {
         new DoUrl().postUrl(url, param);
     }
+    public void clearView()
+    {
+        new DoUrl().clearView();
+    }
 
     public void postUrl(String url) {
         byte[] param = null;
@@ -365,6 +369,11 @@ public class HoomWebBuilder {
         @Override
         public void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding, String historyUrl) {
             hoomWebView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+        }
+
+        @Override
+        public void clearView() {
+            hoomWebView.clearView();
         }
     }
 
