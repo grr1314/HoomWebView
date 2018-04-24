@@ -187,6 +187,12 @@ public class HoomWebBuilder {
             //设置WebViewClient
             hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
                 @Override
+                public void doUpdateVisitedHistory(WebView webView, String s, boolean b) {
+                    super.doUpdateVisitedHistory(webView, s, b);
+                    webChromeListener.refreshWebView((HoomWebView) webView,s,b);
+                }
+
+                @Override
                 public void onPageFinished(WebView webView, String s) {
                     super.onPageFinished(webView, s);
                     if (PathUtil.analyzePath(s)) {
@@ -310,8 +316,8 @@ public class HoomWebBuilder {
     public void postUrl(String url, byte[] param) {
         new DoUrl().postUrl(url, param);
     }
-    public void clearView()
-    {
+
+    public void clearView() {
         new DoUrl().clearView();
     }
 
@@ -390,6 +396,7 @@ public class HoomWebBuilder {
                 }
             }
         }
+
         public abstract Map<String, ConvertInterface.ConvertFactory> addJSCallBack();
     }
 
@@ -422,4 +429,7 @@ public class HoomWebBuilder {
         return hoomWebView.canGoBack();
     }
 
+    public HoomWebView getHoomWebView() {
+        return hoomWebView;
+    }
 }

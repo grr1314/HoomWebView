@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import hoomsun.com.lc.hoomwebview.HoomWebBuilder;
+import hoomsun.com.lc.hoomwebview.HoomWebView;
 import hoomsun.com.lc.hoomwebview.R;
 import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
 
@@ -41,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                         titleTextView.setText(title);
                     }
+
+                    @Override
+                    public void refreshWebView(HoomWebView webView, String url, boolean isReload) {
+
+                    }
+
                 })
                 .build();
 //        hoomWebBuilder.loadUrl(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
