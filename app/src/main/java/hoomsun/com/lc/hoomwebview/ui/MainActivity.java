@@ -8,6 +8,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import hoomsun.com.lc.hoomwebview.HoomWebBuilder;
 import hoomsun.com.lc.hoomwebview.HoomWebView;
 import hoomsun.com.lc.hoomwebview.R;
@@ -43,18 +51,13 @@ public class MainActivity extends AppCompatActivity {
                         titleTextView.setText(title);
                     }
 
-                    @Override
-                    public void refreshWebView(HoomWebView webView, String url, boolean isReload) {
-
-                    }
-
                 })
                 .build();
 //        hoomWebBuilder.loadUrl(" http://www.beijing.gov.cn/zhuanti/ggfw/htsfwbxzzt/shxfl/fw/P020150720516332194302.doc");
-        hoomWebBuilder.loadUrl("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
+//        hoomWebBuilder.loadUrl("https://www.hoomxb.com/upload/pdf/payday-loan.pdf");
 //        hoomWebBuilder.loadUrl("http://x5.tencent.com/tbs/sdk.html");
 //        hoomWebBuilder.postUrl("http://x5.tencent.com/tbs/sdk.html");
-//        hoomWebBuilder.loadUrl("http://www.jd.com/");
+        hoomWebBuilder.loadUrl("http://www.jd.com/");
 
         if (hoomWebBuilder.hoomWebViewCanGoBack()) {
             close.setVisibility(View.VISIBLE);
@@ -80,6 +83,25 @@ public class MainActivity extends AppCompatActivity {
 //        List<HoomWebBuilder.JSCallBack> jsCallBacks=new ArrayList<>();
 //        jsCallBacks.add(new EscrowJsCallBacks());
 //        hoomWebBuilder.registerHandlers(jsCallBacks);
+        String string="{\n" +
+                "      \"action\": \"passwordedit\",\n" +
+                "      \"result\": \"success\",\n" +
+                "      \"data\": {\n" +
+                "          \"title\": \"绑卡成功\",\n" +
+                "          \"content\": \"\"\n" +
+                "      }\n" +
+                "    }";
+model mo=new Gson().fromJson(string,model.class);
+            Log.e("model", mo.data.toString());
+//        try {
+//            JSONObject jsonObject=new JSONObject(string);
+//            String ac=jsonObject.getString("data");
+//            Log.e("model", ac);
+//        } catch (JSONException e) {
+//            Log.e("model", "error");
+//            e.printStackTrace();
+//        }
+
     }
 
     @Override

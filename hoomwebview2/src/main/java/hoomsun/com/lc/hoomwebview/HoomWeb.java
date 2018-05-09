@@ -1,20 +1,20 @@
 package hoomsun.com.lc.hoomwebview;
 
-import android.app.Application;
-import android.util.Log;
+import android.content.Context;
 
 import com.antfortune.freeline.FreelineCore;
 import com.tencent.smtt.sdk.QbSdk;
 
 /**
- * Created by hoomsun on 2018/4/8.
+ * Created by hoomsun on 2018/4/25.
  */
 
-public class App extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        FreelineCore.init(this);
+public class HoomWeb {
+    /**
+     * 初始化qq的内核
+     * @param context
+     */
+    public static void init(Context context) {
         //搜集本地tbs内核信息并上报服务器，服务器返回结果决定使用哪个内核。
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
             @Override
@@ -29,21 +29,6 @@ public class App extends Application {
             }
         };
         //x5内核初始化接口
-        QbSdk.initX5Environment(getApplicationContext(),  cb);
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
+        QbSdk.initX5Environment(context, cb);
     }
 }

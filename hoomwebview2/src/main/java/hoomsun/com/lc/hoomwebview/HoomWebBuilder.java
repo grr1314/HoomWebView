@@ -1,14 +1,14 @@
 package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,6 @@ import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
 import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
-import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewActivity;
 import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewWapper;
 import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
 import hoomsun.com.lc.hoomwebview.util.EncodingUtils;
@@ -40,7 +39,8 @@ public class HoomWebBuilder {
     private Fragment fragment;
     private ConvertInterface.ConvertFactory convertFactory;
     private List<JSCallBack> convertFactoryList = new ArrayList<>();
-    private WebChromeClientWrapper webChromeClientWrapper;
+    private WebChromeClient webChromeClientWrapper;
+    private WebViewClient webViewClientWrapper;
     private BasePostModel basePostModel;
     private HoomWebSettings hoomWebSettings;
     private DefaultProgress defaultProgress;
@@ -49,6 +49,8 @@ public class HoomWebBuilder {
     private boolean isShowFile;
     private View oldView;
     private TbsReaderViewWapper tbsReaderViewWapper;
+    private List<String> url = new ArrayList<>();
+    String oldUrl = "";
 
     public HoomWebBuilder(HoomBuilder hoomBuilder) {
         activity = hoomBuilder.activity;
@@ -62,7 +64,9 @@ public class HoomWebBuilder {
         webViewCreator.create();
         //获取HoomWebView对象
         hoomWebView = (HoomWebView) webViewCreator.getWebView();
-        hoomWebView.getX5WebViewExtension().setScrollBarFadingEnabled(false);//不显示ScrollBar
+        if (hoomWebView.getX5WebViewExtension() != null) {
+            hoomWebView.getX5WebViewExtension().setScrollBarFadingEnabled(false);//不显示ScrollBar
+        }
         webViewParentLayout = webViewCreator.getWebParentLayout();
     }
 
@@ -142,10 +146,15 @@ public class HoomWebBuilder {
         return this;
     }
 
-    public HoomWebBuilder setWebChromeClientWrapper(WebChromeClientWrapper webChromeClientWrapper) {
+    public HoomWebBuilder setWebChromeClientWrapper(WebChromeClient webChromeClientWrapper) {
         this.webChromeClientWrapper = webChromeClientWrapper;
         return this;
     }
+    public HoomWebBuilder setWebViewClientWrapper(WebViewClient webViewClientWrapper) {
+        this.webViewClientWrapper = webViewClientWrapper;
+        return this;
+    }
+
 
     public HoomWebBuilder setProgresssBar() {
         return this;
@@ -184,38 +193,40 @@ public class HoomWebBuilder {
                 webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile);
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
-            //设置WebViewClient
-            hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
-                @Override
-                public void doUpdateVisitedHistory(WebView webView, String s, boolean b) {
-                    super.doUpdateVisitedHistory(webView, s, b);
-                    webChromeListener.refreshWebView((HoomWebView) webView,s,b);
-                }
-
-                @Override
-                public void onPageFinished(WebView webView, String s) {
-                    super.onPageFinished(webView, s);
-                    if (PathUtil.analyzePath(s)) {
-                        webChromeListener.getTitle("文件预览");
+            if (webViewClientWrapper==null)
+            {
+                //设置WebViewClient
+                hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
+                    @Override
+                    public void onPageFinished(WebView webView, String s) {
+                        super.onPageFinished(webView, s);
+                        if (PathUtil.analyzePath(s)) {
+                            webChromeListener.getTitle("文件预览");
 //                        可能是pdf文件，首先要下载文件
 //                        Intent intent = new Intent(activity, TbsReaderViewActivity.class);
 //                        intent.putExtra("fileUrl", s);
 //                        activity.startActivity(intent);
-                        //使用Fragment来展示
-//
-                        //使用View来展示
-                        if (tbsReaderViewWapper == null) {
-                            tbsReaderViewWapper = new TbsReaderViewWapper(activity);
+                            //使用Fragment来展示
+
+                            //使用View来展示
+                            if (tbsReaderViewWapper == null) {
+                                tbsReaderViewWapper = new TbsReaderViewWapper(activity);
+                            }
+                            tbsReaderViewWapper.showFile(s);
+                            //将View添加进来
+                            oldView = webViewParentLayout.getChildAt(0);
+                            webViewParentLayout.removeAllViews();
+                            webViewParentLayout.addView(tbsReaderViewWapper, 0);
+                            isShowFile = true;
                         }
-                        tbsReaderViewWapper.showFile(s);
-                        //将View添加进来
-                        oldView = webViewParentLayout.getChildAt(0);
-                        webViewParentLayout.removeAllViews();
-                        webViewParentLayout.addView(tbsReaderViewWapper, 0);
-                        isShowFile = true;
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                hoomWebView.setWebViewClient(webViewClientWrapper);
+            }
+
         }
         return this;
     }
