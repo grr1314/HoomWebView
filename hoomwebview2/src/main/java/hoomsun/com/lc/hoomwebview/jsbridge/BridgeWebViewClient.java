@@ -1,8 +1,7 @@
 package hoomsun.com.lc.hoomwebview.jsbridge;
 
 import android.graphics.Bitmap;
-import android.os.Build;
-import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 

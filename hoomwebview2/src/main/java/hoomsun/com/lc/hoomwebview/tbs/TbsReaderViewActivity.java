@@ -93,7 +93,6 @@ public class TbsReaderViewActivity extends AppCompatActivity implements TbsReade
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e("onDestroy","onDestroy1");
         tbsReaderView.onStop();
 
     }

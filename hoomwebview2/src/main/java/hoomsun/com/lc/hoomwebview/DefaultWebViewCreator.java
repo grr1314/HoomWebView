@@ -74,6 +74,7 @@ public class DefaultWebViewCreator implements WebViewCreator {
 
     private void addView() {
         RelativeLayout frameLayout = new RelativeLayout(activity);
+        frameLayout.setBackgroundColor(Color.WHITE);
         frameLayout.addView(hoomWebView, layoutParams);
         RelativeLayout.LayoutParams mLayoutParams = new RelativeLayout.LayoutParams(-1, 10);
         if (isNeedDefaultProgress) {
