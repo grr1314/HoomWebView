@@ -3,6 +3,7 @@ package hoomsun.com.lc.hoomwebview;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -18,6 +19,7 @@ import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
 import hoomsun.com.lc.hoomwebview.jsbridge.CallBackFunction;
+import hoomsun.com.lc.hoomwebview.jsbridge.WebViewDrawFinishListener;
 import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
 import hoomsun.com.lc.hoomwebview.tbs.TbsReaderViewWapper;
 import hoomsun.com.lc.hoomwebview.ui.DefaultProgress;
@@ -190,7 +192,7 @@ public class HoomWebBuilder {
             hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
             if (webChromeClientWrapper == null) {
-                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile);
+                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile,hoomWebView);
             }
             hoomWebView.setWebChromeClient(webChromeClientWrapper);
             if (webViewClientWrapper==null)

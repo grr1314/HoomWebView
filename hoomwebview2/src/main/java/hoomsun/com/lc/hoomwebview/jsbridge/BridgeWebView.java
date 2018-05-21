@@ -2,11 +2,13 @@ package hoomsun.com.lc.hoomwebview.jsbridge;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -258,5 +260,24 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	 */
 	public void callHandler(String handlerName, String data, CallBackFunction callBack) {
         doSend(handlerName, data, callBack);
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		if (listener!=null)
+		listener.onViewDrawFinish();
+	}
+	private WebViewDrawFinishListener listener;
+	public void setWebViewDrawFinishListener(WebViewDrawFinishListener listener)
+	{
+		this.listener=listener;
+	}
+
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		if (listener!=null)
+		listener.onViewDrawPreView();
 	}
 }

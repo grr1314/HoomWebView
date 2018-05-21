@@ -7,18 +7,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import hoomsun.com.lc.hoomwebview.HoomWebBuilder;
 import hoomsun.com.lc.hoomwebview.HoomWebView;
 import hoomsun.com.lc.hoomwebview.R;
+import hoomsun.com.lc.hoomwebview.WebChromeClientWrapper;
+import hoomsun.com.lc.hoomwebview.jsbridge.WebViewDrawFinishListener;
 import hoomsun.com.lc.hoomwebview.listener.WebChromeListener;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,8 +37,6 @@ public class MainActivity extends AppCompatActivity {
         hoomWebBuilder = HoomWebBuilder.with(this)
                 .setWebViewParentLayout(content, null)
                 .createHoomWebView()
-//                .setWebSetting(new CustomSettings())
-                .setPostModel(new User("name", "21"))
                 .setWebChromeClientListener(new WebChromeListener() {
                     @Override
                     public void getTitle(String title) {
@@ -49,6 +44,28 @@ public class MainActivity extends AppCompatActivity {
                             title = title.substring(0, 14) + "...";
                         }
                         titleTextView.setText(title);
+                    }
+
+                    @Override
+                    public void onViewDrawPreView() {
+
+                    }
+
+                    @Override
+                    public void onViewDrawFinish(HoomWebView hoomWebView) {
+//                        hoomWebView.setWebViewDrawFinishListener(new WebViewDrawFinishListener() {
+//                            @Override
+//                            public void onViewDrawPreView() {
+//
+//                            }
+//
+//                            @Override
+//                            public void onViewDrawFinish() {
+//                                Log.e("MainActivity","onViewDrawFinish");
+//                                Toast.makeText(getApplicationContext(),"down",Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+
                     }
 
                 })
@@ -78,29 +95,6 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        //注意registerHandlers和registerHandler会相互覆盖
-//        List<HoomWebBuilder.JSCallBack> jsCallBacks=new ArrayList<>();
-//        jsCallBacks.add(new EscrowJsCallBacks());
-//        hoomWebBuilder.registerHandlers(jsCallBacks);
-        String string="{\n" +
-                "      \"action\": \"passwordedit\",\n" +
-                "      \"result\": \"success\",\n" +
-                "      \"data\": {\n" +
-                "          \"title\": \"绑卡成功\",\n" +
-                "          \"content\": \"\"\n" +
-                "      }\n" +
-                "    }";
-model mo=new Gson().fromJson(string,model.class);
-            Log.e("model", mo.data.toString());
-//        try {
-//            JSONObject jsonObject=new JSONObject(string);
-//            String ac=jsonObject.getString("data");
-//            Log.e("model", ac);
-//        } catch (JSONException e) {
-//            Log.e("model", "error");
-//            e.printStackTrace();
-//        }
 
     }
 
