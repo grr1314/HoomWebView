@@ -297,6 +297,7 @@ public class HoomWebBuilder {
         public void handler(String data, CallBackFunction function) {
             if (convertFactory != null) {
                 hasDataCallBack = true;
+                stopTimer();
                 convertFactory.doParse(data);
             }
         }
@@ -483,9 +484,7 @@ public class HoomWebBuilder {
 
     public void unregisterTbsReaderView() {
         if (isShowFile) {
-            if (timer != null) {
-                stopTimer();
-            }
+            stopTimer();
             tbsReaderViewWapper.unregisterTbsReaderView();
         }
     }
