@@ -12,7 +12,10 @@ public interface ConvertInterface<T> {
         public abstract void doParse(String body);
 
         public abstract void doAction(F t);
+        public abstract void isTimeOut();
     }
 
     void doActionInner(T t);
+
+    void timeOut();
 }

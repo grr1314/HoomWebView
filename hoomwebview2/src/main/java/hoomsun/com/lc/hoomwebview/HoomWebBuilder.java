@@ -1,11 +1,13 @@
 package hoomsun.com.lc.hoomwebview;
 
 import android.app.Activity;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
@@ -14,7 +16,10 @@ import com.tencent.smtt.sdk.WebViewClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import hoomsun.com.lc.hoomwebview.base.BaseWebChromeClient;
 import hoomsun.com.lc.hoomwebview.data.factory.ConvertInterface;
 import hoomsun.com.lc.hoomwebview.data.post.BasePostModel;
 import hoomsun.com.lc.hoomwebview.jsbridge.BridgeHandler;
@@ -41,11 +46,13 @@ public class HoomWebBuilder {
     private Fragment fragment;
     private ConvertInterface.ConvertFactory convertFactory;
     private List<JSCallBack> convertFactoryList = new ArrayList<>();
-    private WebChromeClient webChromeClientWrapper;
+    private BaseWebChromeClient baseWebChromeClient;
     private WebViewClient webViewClientWrapper;
     private BasePostModel basePostModel;
     private HoomWebSettings hoomWebSettings;
     private DefaultProgress defaultProgress;
+    private ProgressBar progressBar;
+    private int progressBackground;
     private WebChromeListener webChromeListener;
     private ViewGroup webViewParentLayout;
     private boolean isShowFile;
@@ -53,6 +60,9 @@ public class HoomWebBuilder {
     private TbsReaderViewWapper tbsReaderViewWapper;
     private List<String> url = new ArrayList<>();
     String oldUrl = "";
+    private int timeOutValue = -1;
+    private CountDownTimer timer;
+    private boolean hasDataCallBack;
 
     public HoomWebBuilder(HoomBuilder hoomBuilder) {
         activity = hoomBuilder.activity;
@@ -148,10 +158,16 @@ public class HoomWebBuilder {
         return this;
     }
 
-    public HoomWebBuilder setWebChromeClientWrapper(WebChromeClient webChromeClientWrapper) {
-        this.webChromeClientWrapper = webChromeClientWrapper;
+    public HoomWebBuilder setWebChromeClientWrapper(BaseWebChromeClient webChromeClientWrapper) {
+        this.baseWebChromeClient = webChromeClientWrapper;
         return this;
     }
+    public HoomWebBuilder setCallBackTimeOut(int timeOutValue)
+    {
+        this.timeOutValue=timeOutValue;
+        return this;
+    }
+
     public HoomWebBuilder setWebViewClientWrapper(WebViewClient webViewClientWrapper) {
         this.webViewClientWrapper = webViewClientWrapper;
         return this;
@@ -191,12 +207,16 @@ public class HoomWebBuilder {
             }
             hoomWebSettings.toSetTbsWebSettings(hoomWebView);
             //设置WebChromeClient
-            if (webChromeClientWrapper == null) {
-                webChromeClientWrapper = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile,hoomWebView);
+            if (baseWebChromeClient == null) {
+                setProgressStyle();
+                baseWebChromeClient = new WebChromeClientWrapper(defaultProgress, webChromeListener, isShowFile, hoomWebView);
+            } else {
+                setProgressStyle();
+                baseWebChromeClient.setProgressBar(defaultProgress);
+                baseWebChromeClient.setWebChromeListener(webChromeListener);
+                hoomWebView.setWebChromeClient(baseWebChromeClient);
             }
-            hoomWebView.setWebChromeClient(webChromeClientWrapper);
-            if (webViewClientWrapper==null)
-            {
+            if (webViewClientWrapper == null) {
                 //设置WebViewClient
                 hoomWebView.setWebViewClient(new WebViewClientWrapper(hoomWebView) {
                     @Override
@@ -223,14 +243,20 @@ public class HoomWebBuilder {
                         }
                     }
                 });
-            }
-            else
-            {
+            } else {
                 hoomWebView.setWebViewClient(webViewClientWrapper);
             }
 
         }
         return this;
+    }
+
+    private void setProgressStyle() {
+        if (defaultProgress != null && progressBar != null) {
+            defaultProgress.setProgressBar(progressBar);
+            return;
+        }
+        defaultProgress.setBackgroundResource(progressBackground);
     }
 
     /**
@@ -270,6 +296,7 @@ public class HoomWebBuilder {
         @Override
         public void handler(String data, CallBackFunction function) {
             if (convertFactory != null) {
+                hasDataCallBack = true;
                 convertFactory.doParse(data);
             }
         }
@@ -309,10 +336,37 @@ public class HoomWebBuilder {
      * @param name
      * @param handler
      */
-    private void registerHandlerFinal(String name, BridgeHandler handler) {
+    private void registerHandlerFinal(String name, final BridgeHandler handler) {
         hoomWebView.registerHandler(name, handler);
+        //开始计时
+        if (timeOutValue > 0) {
+            timer = new CountDownTimer(timeOutValue * 1000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    if (!hasDataCallBack) {
+                        if (convertFactory!=null)
+                        {
+                            convertFactory.isTimeOut();
+                            unregisterHandlers();
+                        }
+                    }
+                }
+            };
+        }
     }
 
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            // 一定设置为null，否则定时器不会被回收
+            timer = null;
+        }
+    }
 
     public void loadUrl(String url) {
         new DoUrl().loadUrl(url);
@@ -429,6 +483,9 @@ public class HoomWebBuilder {
 
     public void unregisterTbsReaderView() {
         if (isShowFile) {
+            if (timer != null) {
+                stopTimer();
+            }
             tbsReaderViewWapper.unregisterTbsReaderView();
         }
     }

@@ -31,6 +31,11 @@ public class EscrowJsCallBackFactory extends BaseDataConvertFactroy<User> {
             public void doActionInner(User bean) {
                 return ;
             }
+
+            @Override
+            public void timeOut() {
+
+            }
         });
     }
 
@@ -42,5 +47,10 @@ public class EscrowJsCallBackFactory extends BaseDataConvertFactroy<User> {
     @Override
     public void doAction(User t) {
         listener.doActionInner(t);
+    }
+
+    @Override
+    public void isTimeOut() {
+        listener.timeOut();
     }
 }

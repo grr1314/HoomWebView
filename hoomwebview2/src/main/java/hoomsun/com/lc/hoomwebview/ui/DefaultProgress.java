@@ -22,6 +22,12 @@ public class DefaultProgress implements ProgressInterface {
         progressBar.setBackgroundResource(R.drawable.default_progressbar_bg);
     }
 
+    public void setBackgroundResource(int resource) {
+        if (progressBar != null) {
+            progressBar.setBackgroundResource(resource);
+        }
+    }
+
     @Override
     public void setProgressBar(ProgressBar progressBar) {
         this.progressBar = progressBar;
@@ -29,8 +35,7 @@ public class DefaultProgress implements ProgressInterface {
 
     @Override
     public void progress(WebView view, int newProgress) {
-        if (progressBar.getVisibility()==View.GONE)
-        {
+        if (progressBar.getVisibility() == View.GONE) {
             progressBar.setVisibility(View.VISIBLE);
         }
         progressBar.setProgress(newProgress);
